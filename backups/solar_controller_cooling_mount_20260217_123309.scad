@@ -4,8 +4,8 @@
  * Author: Colin Bitterfield
  * Email: colin@bitterfield.com
  * Date Created: 2025-08-25
- * Date Updated: 2026-02-17
- * Version: 2.6.0
+ * Date Updated: 2026-02-16
+ * Version: 2.5.0
  *
  * STATUS: 44 MODELS - ALL VERIFIED FROM DOCUMENTATION ✅
  *
