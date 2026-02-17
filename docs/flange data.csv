@@ -1,0 +1,7 @@
+﻿flange_type,flange_rail_width,top_slot_center_z,top_slot_depth,top_slot_height,top_slot_offset_x,top_slot_open_direction,top_slot_radius,top_slot_shape,top_slot_width,bottom_slot_center_z,bottom_slot_depth,bottom_slot_height,bottom_slot_offset_x,bottom_slot_open_direction,bottom_slot_radius,bottom_slot_shape,bottom_slot_width
+A1,18,25,30.3,8,0,left,4,U,5.4,96.5,30.3,8,0,left,4,U,5.4
+A2,18,18.8,30.3,7.5,0,left,3.75,U,13.75,72.8,30.3,7.5,0,left,3.75,U,13.75
+B1,18,30,30.3,17,5,left,4,keyhole,8,144,30.3,7.5,5,left,3.75,rounded_slot,13.75
+C1,18,7.8,30.3,0,4,n/a,2,round,0,91.9,30.3,0,4,n/a,2,round,0
+C2,18,8.3,30.3,0,4,n/a,2,round,0,92.4,30.3,0,4,n/a,2,round,0
+B2,,,,,,,,,,,,,,,,,

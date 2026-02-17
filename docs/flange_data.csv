@@ -1,0 +1,10 @@
+flange_config,hole_shape,rail_width,hole_width,hole_height,top_hole_z,bottom_hole_z,description
+A1,Sideways U,18,5.4,10,25,96.5,Medium controllers with sideways U-shaped slots (USER CONFIRMED)
+A3,Sideways U (dual),18,5,54,18.8,72.8,Small controllers (100/20 series). Both holes sideways U: R2.5, width 5mm. Front: 18.8mm from edge, Rear: 54mm spacing (72.8mm total) (USER CONFIRMED)
+A4,Keyhole + Sideways U,18,6,12,11,11,Medium-large controllers (150/60-70 Tr and MC4). Keyhole: 11mm from edge, R2.75 top/R6 bottom/12mm c-c. U: 11mm from edge, R3, width 6mm (USER CONFIRMED)
+B1,Keyhole + Sideways U,23.3,7.5,17,13.75,13.75,Large controllers (4 Tr models: 150/85-100, 250/85-100). Keyhole: 13.75mm from edge, R4 top/R8 bottom/17mm c-c. U: 13.75mm from edge, R3.75, width 7.5mm (USER CONFIRMED)
+B1_MC4,Keyhole + Sideways U,23.3,7.5,17,13.75,13.75,MC4 variants (150/85-100, 250/85-100). ASSUMED same as B1 (UNCONFIRMED - needs user verification)
+B2,Keyhole + Sideways U,23.3,7.5,17,13.75,13.75,XL controllers (VE.Can models, different dimensions 290.6×204.1mm). ASSUMED same as B1 (UNCONFIRMED - needs user verification)
+B3,Keyhole + Sideways U,23.3,6,12,11,11,Large controllers (250/60-70). Keyhole: 11mm from edge, R3 top/R6 bottom/12mm c-c. U: 11mm from edge, R3, width 6mm (USER CONFIRMED)
+C1,Circle (4 corners),0,8,TBD,7.05:91.85,7.8:91.9,Housing-based controllers (75/10-15). 4 corner holes R4 (8mm dia). Spacing: 98.8mm (H) × 84.1mm (V). Margins: 7.05mm (sides) × 7.8mm (top/bottom) (USER CONFIRMED)
+C2,Circle (4 corners),0,8,TBD,7.05:106.85,7.8:92.9,Housing-based controllers (100/15). 4 corner holes R4 (8mm dia). Spacing: 98.8mm (H) × 84.1mm (V). Margins: 7.05mm (sides) × 7.8mm (top/bottom) (USER CONFIRMED)

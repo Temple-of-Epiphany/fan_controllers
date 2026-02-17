@@ -1,0 +1,105 @@
+definitions:
+
+Author: Colin Bitterfield
+Project: Solar Controller Mount
+Revision: 0.1.0 
+
+Inputs:
+	Solar Charge Controller: defined in controller_models.scad
+	Fan thickness (front to back): Choices 10mm, 15mm, or 20mm (defined in fan_specs.scad)
+	
+Subassembly Names:
+	1. Fan Mount
+	2. Flange Rails (Left and Right). Right is a mirror of left
+	3. Grill
+	
+Definitions:
+	Total Width: The total width of the mounting system
+	Fan Area: The total width - (2 * Flange Rail width)
+	Total Screw Length: The program should recommend the proper screw length. Screws that are available for recommendation are listed in screw_options.scad.
+	Inset Flange Nut: A round nut that is defined in nut_profiles.scad.
+	
+Model Cadd drawings for Charge Controllers are listed in PDFs.
+	1. 
+
+
+Design Specification Format
+	1.	Name of Part: Solar Charge Controller Cooling Mount
+	2.	Purpose: This part has 4 sub-assemblies and creates a mount for 1-x number of fans and a controller to cool a solar charge controller when it gets hot.
+	3.	Dimensions: The design is in metric units. The dimensions for various parts are derived from lookup tables. The X Axis is left / right, the Y Axis is front / back and the Z axis is height. Z0 is the bottom and Z max is the top. All screws are 4mm hex bolts and have 
+	4.	Components & Shapes:
+	•	Identify basic shapes (e.g., cube, cylinder, sphere) and their arrangement.
+	•	Specify holes, cutouts, or complex features.
+	5.	Assembly Considerations:
+	•	Will this part connect with others? (Specify tolerances, screw holes, etc.)
+	6.	Material Notes: Minimum wall thickness is 4mm
+	7.	Special Requests: Use of variables and lookup tables.
+
+X-Axis — Width (side-to-side)
+	•	Horizontal axis
+	•	Defines the total width of the controller and flange rails
+	•	Direction: left ↔ right
+
+Y-Axis — Depth (front-to-back)
+	•	Perpendicular to the controller face
+	•	Controls the fan height, mount thickness, and nut recess depth
+	•	Direction: front → back
+
+Z-Axis — Height (extrusion)
+	•	Controls how tall parts are when extruded
+	•	Used for flange length, controller height, mount rail extrusion
+	
+A fan is defined as follows: (Example)
+	50 mm height (top to bottom)
+	50 mm width (left to right)
+	15 mm length (front to back)
+	screw holes for a fan are inset by 5 mm for each size.
+	this fan has holes that are 40mm x 40mm
+	
+Flange Rails are defined as:
+	length comes from "controller_models.scad" length
+	height is calculated based on the heat sink and fan chosen
+	width is defined in flange_rails.scad (flange_rail_width)
+	wall mount holes are on the extruded face
+	fan mount holes are on the Y Min and Y Max Face. The are are 4mm holes that are 25% from the top and 25% from the bottom of the flange rail height.
+	The right flange rail is a mirror of the left flange rail.
+	In controller_models.scad the flange rail config is defined as flange_config and maps to a corresponding row in flange_rails.scad. The shape and location of the wall mount holes are defined as top and bottom slots/holes
+		
+		
+The program is set with two predefined parameters:
+	model_code from (controller_models.scad)
+	and fan length which defaults to 15mm
+	
+There are four parts to this model.
+
+Part 1: Fan Mount which is 4.1mm thick and has an inset for a 4mm nut which is 1mm deep on the back side. The fan mount is the front.
+Part 2 & 3 (left and right) flange Rails
+	The flange rail is defined with a length in the controller_models.scad field.
+	The left rail is key and the right rail is mirrored.
+Part 4 is a honeycomb grill which is 4mm thick and uses 5mm hexagons with 2mm spacing. There must always be a 4mm border and the honey will only be in the fan area as defined.
+
+The fan area is the area defined as total width - (2 x Flange Rail Width)
+
+The program should calculate a recommended screw size based on fan length + 3.1mm + 4.1 fan mount thickness - 1 (for the inset). The choices are in the file screw_options.scad and are basically 15,20,25,30mm. Whichever is long enough with the least left over
+
+Before models are rendered; the program should output the following information:
+
+Model Code
+Model Name
+Recommend Screw Size
+Total Width
+Fan Width
+
+The parts are Part 1 width (thickness) + (part 2 & 3)flange Rail Length + part 4 grill thickness.
+
+The fan mount is connected to the flange rails with screws that are center the rail and 25% from the top and 25% from the bottom on the rail. This is also true for the grill which is the back of the total model. Inset to the holes on the flange rails are flange nuts. These are also defined right under the fan length. They are 4mm x length x width. The default for this is M4x9.1x6.3 
+
+The Grill and Fan Mount should render in blue and the flange rails in black.
+
+The code author is Colin Bitterfield
+The code project is Victron Controllers
+The code should have a revision number start 0.1.0 and should be updated between changes.
+Always render the complete code as output for cut and paste.
+Once a block of code is called "locked" it should not be changed unless unlocked first.
+
+The first block of code is the variables, constants and derived values.
