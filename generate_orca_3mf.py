@@ -6,7 +6,7 @@ Author: Colin Bitterfield
 Email: colin@bitterfield.com
 Date Created: 2026-02-17
 Date Updated: 2026-02-17
-Version: 2.0.0
+Version: 2.1.0
 
 Generates one 3MF per controller model x fan size combination:
   - Default fan size (from database)
@@ -444,6 +444,7 @@ def render_stl(openscad_cmd, scad_file, model_code, component_num, fan_override,
     cmd = [
         openscad_cmd,
         "-o", str(out_path),
+        "--export-format", "binstl",
         "-D", f'model_code="{model_code}"',
         "-D", f"component={component_num}",
         "-D", f"fan_size_override={fan_override}",
@@ -456,9 +457,49 @@ def render_stl(openscad_cmd, scad_file, model_code, component_num, fan_override,
         return False
 
 
+def render_png(openscad_cmd, scad_file, model_code, component_num, fan_override,
+               out_path, width=300, height=300):
+    """Render a PNG preview thumbnail via OpenSCAD. Returns True on success."""
+    cmd = [
+        openscad_cmd,
+        "-o", str(out_path),
+        "--export-format", "png",
+        f"--imgsize={width},{height}",
+        "--autocenter",
+        "--viewall",
+        "--camera=0,0,0,45,0,25,500",
+        "-D", f'model_code="{model_code}"',
+        "-D", f"component={component_num}",
+        "-D", f"fan_size_override={fan_override}",
+        str(scad_file),
+    ]
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+        return r.returncode == 0 and out_path.exists() and out_path.stat().st_size > 0
+    except subprocess.TimeoutExpired:
+        return False
+
+
+def resize_png(data, width, height):
+    """
+    Resize PNG bytes to (width, height) using Pillow if available.
+    Returns resized bytes, or None if Pillow is not installed.
+    """
+    try:
+        import io
+        from PIL import Image
+        img = Image.open(io.BytesIO(data))
+        img = img.resize((width, height), Image.LANCZOS)
+        buf = io.BytesIO()
+        img.save(buf, format="PNG")
+        return buf.getvalue()
+    except ImportError:
+        return None
+
+
 # ===== 3MF PACKAGER =====
 
-def create_3mf(stl_paths, output_3mf, model_name, fan_size):
+def create_3mf(stl_paths, output_3mf, model_name, fan_size, png_paths=None):
     """
     Build a complete ElegooSlicer-compatible 3MF from 4 STL files.
 
@@ -634,10 +675,19 @@ def create_3mf(stl_paths, output_3mf, model_name, fan_size):
             zf.writestr("Metadata/model_settings.config", settings_xml)
             zf.writestr("Metadata/slice_info.config", build_slice_info())
 
-            # Blank plate thumbnails (slicer will regenerate on slice)
-            for i in range(1, 4):
-                zf.writestr(f"Metadata/plate_{i}.png", _BLANK_PNG)
-                zf.writestr(f"Metadata/plate_{i}_small.png", _BLANK_PNG)
+            # Plate thumbnails: use rendered PNGs if available, else blank
+            # Plate 1=fan mount (COMP_FRONT), 2=rails (COMP_LEFT), 3=grill (COMP_REAR)
+            plate_comp = {1: COMP_FRONT, 2: COMP_LEFT, 3: COMP_REAR}
+            for plate_num, comp_id in plate_comp.items():
+                full_data  = _BLANK_PNG
+                small_data = _BLANK_PNG
+                if png_paths and comp_id in png_paths:
+                    png_path = png_paths[comp_id]
+                    if png_path.exists() and png_path.stat().st_size > 0:
+                        full_data = png_path.read_bytes()
+                        small_data = resize_png(full_data, 150, 150) or full_data
+                zf.writestr(f"Metadata/plate_{plate_num}.png", full_data)
+                zf.writestr(f"Metadata/plate_{plate_num}_small.png", small_data)
 
         size_kb = output_3mf.stat().st_size // 1024
         print(f"done ({size_kb} KB)")
@@ -717,7 +767,19 @@ def main():
                 failed += 1
                 continue
 
-            if create_3mf(stl_paths, output, name, fan_size):
+            # Render PNG thumbnails for 3 plates (front, left rail, grill)
+            # Left rail is used as stand-in for the rails plate thumbnail
+            png_paths = {}
+            for comp_id in [COMP_FRONT, COMP_LEFT, COMP_REAR]:
+                png = tmp_path / f"{model_code}_{fan_size}_plate{comp_id}.png"
+                print(f"    Preview {COMP_NAMES[comp_id]}...", end=" ", flush=True)
+                if render_png(openscad_cmd, scad_path, model_code, comp_id, fan_override, png):
+                    png_paths[comp_id] = png
+                    print("ok")
+                else:
+                    print("skipped")
+
+            if create_3mf(stl_paths, output, name, fan_size, png_paths):
                 success += 1
             else:
                 failed += 1
