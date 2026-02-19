@@ -4,8 +4,8 @@
  * Author: Colin Bitterfield
  * Email: colin@bitterfield.com
  * Date Created: 2025-08-25
- * Date Updated: 2026-02-19
- * Version: 2.6.2
+ * Date Updated: 2026-02-17
+ * Version: 2.6.0
  *
  * STATUS: 44 MODELS - ALL VERIFIED FROM DOCUMENTATION ✅
  *
@@ -65,7 +65,7 @@ controller_db = [
     ["SCC115070310", "SmartSolar MPPT 150/70-MC4", 250, 212.6, 32.5, 214, 4, 50, "A4_MC4", "keyhole_u"],
 
     // B1 Config - 4x50mm fans, Keyhole top + Sideways U bottom (USER CONFIRMED: Only these 4 Tr models)
-    // Keyhole: 13.75mm from edge, R4 top/R8 bottom/9mm c-c (confirmed from PDF). U: 13.75mm from edge, R3.75, width 7.5mm
+    // Keyhole: 13.75mm from edge, R4 top/R8 bottom/17mm c-c. U: 13.75mm from edge, R3.75, width 7.5mm
     ["SCC115085211", "SmartSolar MPPT 150/85-Tr", 295, 204, 34.5, 242, 4, 50, "B1", "keyhole_u"],
     ["SCC115110211", "SmartSolar MPPT 150/100-Tr", 295, 204, 34.5, 242, 4, 50, "B1", "keyhole_u"],
     ["SCC125085210", "SmartSolar MPPT 250/85-Tr", 295, 204, 34.5, 242, 4, 50, "B1", "keyhole_u"],
@@ -255,16 +255,15 @@ module front_fan_mount(ctrl) {
             translate([x_pos + cutout_size/2, plate_length/2, -0.5]) {
                 cylinder(d=cutout_size-8, h=plate_thickness+1, $fn=50);
 
-                screw_spacing = cutout_size == 50 ? 40 : 32;
+                screw_spacing = cutout_size == 50 ? 40 : 30;
                 screw_dia     = cutout_size == 50 ? m4_hole_dia : m3_hole_dia;
 
                 for (x = [-screw_spacing/2, screw_spacing/2]) {
                     for (y = [-screw_spacing/2, screw_spacing/2]) {
                         translate([x, y, 0]) {
                             cylinder(d=screw_dia, h=plate_thickness+1);
-                            if (cutout_size == 50)
-                                translate([0, 0, plate_thickness - 4])
-                                    cylinder(d=5.6, h=4.5);
+                            translate([0, 0, plate_thickness - 4])
+                                cylinder(d=5.6, h=4.5);
                         }
                     }
                 }
@@ -410,15 +409,13 @@ module left_rail(ctrl) {
             flange_config = get_flange_config(ctrl);
 
             // Config-specific U-hole dimensions
-            u_hole_position = (flange_config == "A4" || flange_config == "A4_MC4") ? 35 :
-                             (flange_config == "B3") ? 11 :  // B3 value not yet verified from PDF
+            u_hole_position = (flange_config == "A4" || flange_config == "A4_MC4" || flange_config == "B3") ? 11 :
                              (flange_config == "B1" || flange_config == "B2" || flange_config == "B2_MC4") ? 13.75 : 25;
             u_hole_diameter = (flange_config == "A4" || flange_config == "A4_MC4" || flange_config == "B3") ? 6 :
                              (flange_config == "B1" || flange_config == "B2" || flange_config == "B2_MC4") ? 7.5 : 8;
 
             // Config-specific keyhole dimensions
-            keyhole_position = (flange_config == "A4" || flange_config == "A4_MC4") ? 35 :
-                              (flange_config == "B3") ? 11 :  // B3 value not yet verified from PDF
+            keyhole_position = (flange_config == "A4" || flange_config == "A4_MC4" || flange_config == "B3") ? 11 :
                               (flange_config == "B1" || flange_config == "B2" || flange_config == "B2_MC4") ? 13.75 : 30;
 
             // Top keyhole (rear of controller, toward longer Y values)
@@ -435,16 +432,16 @@ module left_rail(ctrl) {
                         cylinder(r=2.75, h=12, center=true);
                 }
             } else if (flange_config == "B1" || flange_config == "B2" || flange_config == "B2_MC4") {
-                // B1/B2: Keyhole with R4 top, R8 bottom, 9mm center-to-center (confirmed from PDF)
+                // B1/B2: Keyhole with R4 top, R8 bottom, 17mm center-to-center (USER CONFIRMED for B1, B2 needs verification)
                 translate([rail_width/2, controller_length - keyhole_position, rail_height]) {
                     // Top circle (R4 = 8mm diameter)
                     cylinder(r=4, h=15, center=true);
-                    // Bottom large circle (R8 = 16mm diameter), 9mm below top
-                    translate([0, 0, -9])
+                    // Bottom large circle (R8 = 16mm diameter), 17mm below top
+                    translate([0, 0, -17])
                         cylinder(r=8, h=15, center=true);
                     // Connecting slot (8mm wide to match top circle)
-                    translate([0, 0, -4.5])
-                        cylinder(r=4, h=9, center=true);
+                    translate([0, 0, -8.5])
+                        cylinder(r=4, h=17, center=true);
                 }
             } else if (flange_config == "B3") {
                 // B3: Keyhole with R3 top, R6 bottom, 12mm center-to-center
@@ -615,15 +612,13 @@ module right_rail(ctrl) {
             flange_config = get_flange_config(ctrl);
 
             // Config-specific U-hole dimensions
-            u_hole_position = (flange_config == "A4" || flange_config == "A4_MC4") ? 35 :
-                             (flange_config == "B3") ? 11 :  // B3 value not yet verified from PDF
+            u_hole_position = (flange_config == "A4" || flange_config == "A4_MC4" || flange_config == "B3") ? 11 :
                              (flange_config == "B1" || flange_config == "B2" || flange_config == "B2_MC4") ? 13.75 : 25;
             u_hole_diameter = (flange_config == "A4" || flange_config == "A4_MC4" || flange_config == "B3") ? 6 :
                              (flange_config == "B1" || flange_config == "B2" || flange_config == "B2_MC4") ? 7.5 : 8;
 
             // Config-specific keyhole dimensions
-            keyhole_position = (flange_config == "A4" || flange_config == "A4_MC4") ? 35 :
-                              (flange_config == "B3") ? 11 :  // B3 value not yet verified from PDF
+            keyhole_position = (flange_config == "A4" || flange_config == "A4_MC4" || flange_config == "B3") ? 11 :
                               (flange_config == "B1" || flange_config == "B2" || flange_config == "B2_MC4") ? 13.75 : 30;
 
             // Top keyhole (rear of controller, toward longer Y values)
@@ -640,16 +635,16 @@ module right_rail(ctrl) {
                         cylinder(r=2.75, h=12, center=true);
                 }
             } else if (flange_config == "B1" || flange_config == "B2" || flange_config == "B2_MC4") {
-                // B1/B2: Keyhole with R4 top, R8 bottom, 9mm center-to-center (confirmed from PDF)
+                // B1/B2: Keyhole with R4 top, R8 bottom, 17mm center-to-center (USER CONFIRMED for B1, B2 needs verification)
                 translate([rail_width/2, controller_length - keyhole_position, rail_height]) {
                     // Top circle (R4 = 8mm diameter)
                     cylinder(r=4, h=15, center=true);
-                    // Bottom large circle (R8 = 16mm diameter), 9mm below top
-                    translate([0, 0, -9])
+                    // Bottom large circle (R8 = 16mm diameter), 17mm below top
+                    translate([0, 0, -17])
                         cylinder(r=8, h=15, center=true);
                     // Connecting slot (8mm wide to match top circle)
-                    translate([0, 0, -4.5])
-                        cylinder(r=4, h=9, center=true);
+                    translate([0, 0, -8.5])
+                        cylinder(r=4, h=17, center=true);
                 }
             } else if (flange_config == "B3") {
                 // B3: Keyhole with R3 top, R6 bottom, 12mm center-to-center
