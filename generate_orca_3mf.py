@@ -5,8 +5,8 @@ Generate per-model ElegooSlicer/OrcaSlicer 3MF files for Victron MPPT cooling mo
 Author: Colin Bitterfield
 Email: colin@bitterfield.com
 Date Created: 2026-02-17
-Date Updated: 2026-02-17
-Version: 2.1.0
+Date Updated: 2026-02-18
+Version: 2.3.0
 
 Generates one 3MF per controller model x fan size combination:
   - Default fan size (from database)
@@ -103,6 +103,7 @@ SCAD_FILE         = "solar_controller_cooling_mount.scad"
 OUTPUT_DIR        = Path("output_orca_3mf")
 BED_SIZE          = 256.0    # Build plate width/depth (mm)
 MAX_STRAIGHT      = 245.0    # Parts larger than this are rotated 45°
+PLATE_STRIDE      = BED_SIZE * 1.2  # Virtual canvas offset between plates (~307.2mm)
 
 # Component numbers (must match SCAD component variable)
 COMP_FRONT = 1
@@ -274,7 +275,7 @@ def build_main_model_xml(objects, build_items):
     lines = [
         '<?xml version="1.0" encoding="UTF-8"?>',
         f'<model unit="millimeter" xml:lang="en-US" {ns}>',
-        ' <metadata name="Application">generate_orca_3mf.py-2.0.0</metadata>',
+        ' <metadata name="Application">generate_orca_3mf.py-2.3.0</metadata>',
         ' <metadata name="BambuStudio:3mfVersion">1</metadata>',
         ' <resources>',
     ]
@@ -324,6 +325,9 @@ def build_root_rels():
 <?xml version="1.0" encoding="UTF-8"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
  <Relationship Target="/3D/3dmodel.model" Id="rel-1" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/>
+ <Relationship Target="/Metadata/plate_1.png" Id="rel-2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/thumbnail"/>
+ <Relationship Target="/Metadata/plate_1.png" Id="rel-4" Type="http://schemas.bambulab.com/package/2021/cover-thumbnail-middle"/>
+ <Relationship Target="/Metadata/plate_1_small.png" Id="rel-5" Type="http://schemas.bambulab.com/package/2021/cover-thumbnail-small"/>
 </Relationships>"""
 
 
@@ -335,6 +339,8 @@ def build_content_types():
  <Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml"/>
  <Default Extension="png" ContentType="image/png"/>
  <Default Extension="config" ContentType="application/xml"/>
+ <Default Extension="gcode" ContentType="text/x.gcode"/>
+ <Default Extension="json" ContentType="application/json"/>
 </Types>"""
 
 
@@ -372,12 +378,17 @@ def build_model_settings(objects, plates, assemble_items):
         lines.append(f'  </object>')
 
     for plate in plates:
+        pid = plate['plater_id']
         lines.append('  <plate>')
-        lines.append(f'    <metadata key="plater_id" value="{plate["plater_id"]}"/>')
+        lines.append(f'    <metadata key="plater_id" value="{pid}"/>')
         lines.append(f'    <metadata key="plater_name" value="{plate["plater_name"]}"/>')
         lines.append(f'    <metadata key="locked" value="false"/>')
         lines.append(f'    <metadata key="filament_map_mode" value="Auto For Flush"/>')
         lines.append(f'    <metadata key="filament_maps" value="1 1"/>')
+        lines.append(f'    <metadata key="thumbnail_file" value="Metadata/plate_{pid}.png"/>')
+        lines.append(f'    <metadata key="thumbnail_no_light_file" value="Metadata/plate_no_light_{pid}.png"/>')
+        lines.append(f'    <metadata key="top_file" value="Metadata/top_{pid}.png"/>')
+        lines.append(f'    <metadata key="pick_file" value="Metadata/pick_{pid}.png"/>')
         for (wrapper_id, instance_id, identify_id) in plate['object_ids']:
             lines.append('    <model_instance>')
             lines.append(f'      <metadata key="object_id" value="{wrapper_id}"/>')
@@ -535,28 +546,54 @@ def create_3mf(stl_paths, output_3mf, model_name, fan_size, png_paths=None):
         COMP_REAR:  (7, 8),
     }
 
+    # --- Compute part heights (for tz = height/2 in build transforms) ---
+    # ElegooSlicer re-centers meshes at Z=0 before applying build transforms,
+    # so tz must equal height/2 to place the part bottom at Z=0 on the build plate.
+    heights = {}
+    for cid in [COMP_FRONT, COMP_LEFT, COMP_RIGHT, COMP_REAR]:
+        b = meshes[cid]['bounds']
+        heights[cid] = b[5] - b[2]  # original max_z - min_z
+
     # --- Compute transforms ---
-    # FRONT: plate, possibly rotated
+    # ElegooSlicer's virtual canvas layout (from working example analysis):
+    #   Plate 1: X in [0, BED_SIZE],        Y in [0, BED_SIZE]  → center (128, 128)
+    #   Plate 2: X > BED_SIZE (right)       Y in [0, BED_SIZE]  → center (128+stride, 128)
+    #   Plate 3: X in [0, BED_SIZE],        Y < 0 (below)       → center (128, 128-stride)
+    plate_cx = {
+        1: bed_center,               # fan-mount: normal bed X
+        2: bed_center + PLATE_STRIDE, # rails: shifted right
+        3: bed_center,               # grill: same X as plate 1
+    }
+    plate_cy = {
+        1: bed_center,               # fan-mount: normal bed Y
+        2: bed_center,               # rails: same Y as plate 1
+        3: bed_center - PLATE_STRIDE, # grill: shifted into negative Y
+    }
+
+    # FRONT: plate 1, possibly rotated
     front_bounds = meshes[COMP_FRONT]['bounds']
     front_rotate = needs_rotation(front_bounds)
-    front_transform = build_transform(front_rotate, bed_center, bed_center, 0.0)
+    front_tz = heights[COMP_FRONT] / 2.0
+    front_transform = build_transform(front_rotate, plate_cx[1], plate_cy[1], front_tz)
 
-    # REAR: same dimensions as front
+    # REAR: plate 3, possibly rotated
     rear_bounds = meshes[COMP_REAR]['bounds']
     rear_rotate = needs_rotation(rear_bounds)
-    rear_transform = build_transform(rear_rotate, bed_center, bed_center, 0.0)
+    rear_tz = heights[COMP_REAR] / 2.0
+    rear_transform = build_transform(rear_rotate, plate_cx[3], plate_cy[3], rear_tz)
 
-    # RAILS: side by side, centered
+    # RAILS: plate 2, side by side, centered on plate 2's virtual canvas position
     l_bounds = meshes[COMP_LEFT]['bounds']
     r_bounds = meshes[COMP_RIGHT]['bounds']
     l_w = l_bounds[3] - l_bounds[0]
     r_w = r_bounds[3] - r_bounds[0]
     rail_gap = 10.0
-    # Position left and right rails side by side, centered on bed
-    left_tx  = bed_center - l_w / 2.0 - rail_gap / 2.0
-    right_tx = bed_center + r_w / 2.0 + rail_gap / 2.0
-    left_transform  = build_transform(False, left_tx,  bed_center, 0.0)
-    right_transform = build_transform(False, right_tx, bed_center, 0.0)
+    left_tx  = plate_cx[2] - l_w / 2.0 - rail_gap / 2.0
+    right_tx = plate_cx[2] + r_w / 2.0 + rail_gap / 2.0
+    left_tz   = heights[COMP_LEFT]  / 2.0
+    right_tz  = heights[COMP_RIGHT] / 2.0
+    left_transform  = build_transform(False, left_tx,  plate_cy[2], left_tz)
+    right_transform = build_transform(False, right_tx, plate_cy[2], right_tz)
 
     transforms = {
         COMP_FRONT: front_transform,
@@ -629,11 +666,11 @@ def create_3mf(stl_paths, output_3mf, model_name, fan_size, png_paths=None):
             'name':          COMP_NAMES[comp_id],
             'source_offset_x': (b[0] + b[3]) / 2.0,
             'source_offset_y': (b[1] + b[4]) / 2.0,
-            'source_offset_z': b[2],
+            'source_offset_z': heights[comp_id] / 2.0,
         })
 
     assemble_items = [
-        {'wrapper_id': id_map[cid][1], 'tz': 0.0}
+        {'wrapper_id': id_map[cid][1], 'tz': heights[cid] / 2.0}
         for cid in [COMP_FRONT, COMP_LEFT, COMP_RIGHT, COMP_REAR]
     ]
 
@@ -688,6 +725,10 @@ def create_3mf(stl_paths, output_3mf, model_name, fan_size, png_paths=None):
                         small_data = resize_png(full_data, 150, 150) or full_data
                 zf.writestr(f"Metadata/plate_{plate_num}.png", full_data)
                 zf.writestr(f"Metadata/plate_{plate_num}_small.png", small_data)
+                # Extra slicer-expected image slots (blank; slicer generates real ones on save)
+                zf.writestr(f"Metadata/plate_no_light_{plate_num}.png", full_data)
+                zf.writestr(f"Metadata/top_{plate_num}.png", _BLANK_PNG)
+                zf.writestr(f"Metadata/pick_{plate_num}.png", _BLANK_PNG)
 
         size_kb = output_3mf.stat().st_size // 1024
         print(f"done ({size_kb} KB)")

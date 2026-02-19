@@ -4,8 +4,8 @@
  * Author: Colin Bitterfield
  * Email: colin@bitterfield.com
  * Date Created: 2025-08-25
- * Date Updated: 2026-02-17
- * Version: 2.6.0
+ * Date Updated: 2026-02-19
+ * Version: 2.6.1
  *
  * STATUS: 44 MODELS - ALL VERIFIED FROM DOCUMENTATION ✅
  *
@@ -255,15 +255,16 @@ module front_fan_mount(ctrl) {
             translate([x_pos + cutout_size/2, plate_length/2, -0.5]) {
                 cylinder(d=cutout_size-8, h=plate_thickness+1, $fn=50);
 
-                screw_spacing = cutout_size == 50 ? 40 : 30;
+                screw_spacing = cutout_size == 50 ? 40 : 32;
                 screw_dia     = cutout_size == 50 ? m4_hole_dia : m3_hole_dia;
 
                 for (x = [-screw_spacing/2, screw_spacing/2]) {
                     for (y = [-screw_spacing/2, screw_spacing/2]) {
                         translate([x, y, 0]) {
                             cylinder(d=screw_dia, h=plate_thickness+1);
-                            translate([0, 0, plate_thickness - 4])
-                                cylinder(d=5.6, h=4.5);
+                            if (cutout_size == 50)
+                                translate([0, 0, plate_thickness - 4])
+                                    cylinder(d=5.6, h=4.5);
                         }
                     }
                 }
