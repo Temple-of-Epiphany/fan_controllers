@@ -5,7 +5,7 @@
  * Email: colin@bitterfield.com
  * Date Created: 2025-08-25
  * Date Updated: 2026-02-20
- * Version: 2.6.5
+ * Version: 2.6.6
  *
  * STATUS: 44 MODELS - ALL VERIFIED FROM DOCUMENTATION ✅
  *
@@ -26,7 +26,7 @@
 
 // ===== USER CONFIGURATION =====
 /* [Model Selection] */
-model_code = "SCC020030200"; // [SCC020030200:BlueSolar 100/30, SCC110030210:SmartSolar 100/30, SCC020050200:BlueSolar 100/50, SCC020035000:BlueSolar 150/35, SCC115045222:BlueSolar 150/45, SCC110050210:SmartSolar 100/50, SCC115035210:SmartSolar 150/35, SCC115045212:SmartSolar 150/45, ORI121236120:Orion-Tr Smart 12/12-30A, ORI122436120:Orion-Tr Smart 12/24-15A, ORI241236120:Orion-Tr Smart 24/12-30A, SCC115060210:SmartSolar 150/60-Tr, SCC115070210:SmartSolar 150/70-Tr, SCC115060310:SmartSolar 150/60-MC4, SCC115070310:SmartSolar 150/70-MC4, SCC110020070R:BlueSolar 100/20, SCC110020170R:BlueSolar 100/20_48V, SCC110020060R:SmartSolar 100/20, SCC110020160R:SmartSolar 100/20_48V, SCC115110211:SmartSolar 150/100-Tr, SCC115085211:SmartSolar 150/85-Tr, SCC125110210:SmartSolar 250/100-Tr, SCC125085210:SmartSolar 250/85-Tr, SCC115085411:SmartSolar 150/85-Tr VE.Can, SCC115110410:SmartSolar 150/100-Tr VE.Can, SCC115110420:BlueSolar 150/100-Tr VE.Can, SCC125085411:SmartSolar 250/85-Tr VE.Can, SCC125110411:SmartSolar 250/100-Tr VE.Can, SCC125110441:BlueSolar 250/100-Tr VE.Can, SCC115085511:SmartSolar 150/85-MC4 VE.Can, SCC115110511:SmartSolar 150/100-MC4 VE.Can, SCC125085511:SmartSolar 250/85-MC4 VE.Can, SCC125110512:SmartSolar 250/100-MC4 VE.Can, SCC125060221:SmartSolar 250/60-Tr, SCC125070220:SmartSolar 250/70-Tr, SCC010010050R:BlueSolar 75/10, SCC010015050R:BlueSolar 75/15, SCC075010060R:SmartSolar 75/10, SCC075015060R:SmartSolar 75/15, SCC010015200R:SmartSolar 100/15, SCC110015060R:SmartSolar 100/15]
+model_code = "SCC020030200"; // [SCC020030200:BlueSolar 100/30, SCC110030210:SmartSolar 100/30, SCC020050200:BlueSolar 100/50, SCC020035000:BlueSolar 150/35, SCC115045222:BlueSolar 150/45, SCC110050210:SmartSolar 100/50, SCC115035210:SmartSolar 150/35, SCC115045212:SmartSolar 150/45, ORI121236120:Orion-Tr Smart 12/12-30A, ORI122436120:Orion-Tr Smart 12/24-15A, ORI241236120:Orion-Tr Smart 24/12-30A, SCC115060210:SmartSolar 150/60-Tr, SCC115070210:SmartSolar 150/70-Tr, SCC110020070R:BlueSolar 100/20, SCC110020170R:BlueSolar 100/20_48V, SCC110020060R:SmartSolar 100/20, SCC110020160R:SmartSolar 100/20_48V, SCC115110211:SmartSolar 150/100-Tr, SCC115085211:SmartSolar 150/85-Tr, SCC125110210:SmartSolar 250/100-Tr, SCC125085210:SmartSolar 250/85-Tr, SCC115085411:SmartSolar 150/85-Tr VE.Can, SCC115110410:SmartSolar 150/100-Tr VE.Can, SCC115110420:BlueSolar 150/100-Tr VE.Can, SCC125085411:SmartSolar 250/85-Tr VE.Can, SCC125110411:SmartSolar 250/100-Tr VE.Can, SCC125110441:BlueSolar 250/100-Tr VE.Can, SCC115085511:SmartSolar 150/85-MC4 VE.Can, SCC115110511:SmartSolar 150/100-MC4 VE.Can, SCC125085511:SmartSolar 250/85-MC4 VE.Can, SCC125110512:SmartSolar 250/100-MC4 VE.Can, SCC125060221:SmartSolar 250/60-Tr, SCC125070220:SmartSolar 250/70-Tr, SCC115060310:SmartSolar 150/60-MC4, SCC115070310:SmartSolar 150/70-MC4, SCC125060310:SmartSolar 250/60-MC4, SCC125060321:SmartSolar 250/60-MC4, SCC125070310:SmartSolar 250/70-MC4, SCC125070321:SmartSolar 250/70-MC4, SCC010010050R:BlueSolar 75/10, SCC010015050R:BlueSolar 75/15, SCC075010060R:SmartSolar 75/10, SCC075015060R:SmartSolar 75/15, SCC010015200R:SmartSolar 100/15, SCC110015060R:SmartSolar 100/15]
 
 /* [Component Selection] */
 component = 1; // [1:Front Fan Mount, 2:Left Rail, 3:Right Rail, 4:Rear Grill]
@@ -60,11 +60,10 @@ controller_db = [
     ["SCC115060210", "SmartSolar MPPT 150/60-Tr", 250, 171, 32.5, 214, 4, 50, "A4", "keyhole_u"],
     ["SCC115070210", "SmartSolar MPPT 150/70-Tr", 250, 171, 32.5, 214, 4, 50, "A4", "keyhole_u"],
 
-    // A4_MC4 Config - 4x50mm fans, MC4 variants (same heatsink body as A4, 171mm)
-    // Length confirmed 171mm from STEP file analysis: holes at Z=35 and Z=136 = 171mm heatsink span
-    // 212.6mm was the overall housing length including MC4 connector protrusions, not the heatsink rail
-    ["SCC115060310", "SmartSolar MPPT 150/60-MC4", 250, 171, 32.5, 214, 4, 50, "A4_MC4", "keyhole_u"],
-    ["SCC115070310", "SmartSolar MPPT 150/70-MC4", 250, 171, 32.5, 214, 4, 50, "A4_MC4", "keyhole_u"],
+    // A4_MC4 Config - REMOVED: 150/60-MC4 and 150/70-MC4 share B3 body (not A4)
+    // Confirmed from SS-MPPT-250-60-70-MC4-3D.STEP which covers SCC115060310, SCC115070310,
+    // SCC125060310, SCC125060321, SCC125070310, SCC125070321 all on same dimension drawing.
+    // Moved to B3 MC4 section below.
 
     // B1 Config - 4x50mm fans, Keyhole top + Sideways U bottom (USER CONFIRMED: Only these 4 Tr models)
     // B1 Keyhole: 13.75mm from edge, R4/R8, 9mm c-c (confirmed from PDF). U: 13.75mm from edge, 7.5mm dia
@@ -96,6 +95,14 @@ controller_db = [
     // B3 Config - 4x50mm fans, Keyhole top + Sideways U bottom
     ["SCC125060221", "SmartSolar MPPT 250/60-Tr", 248.5, 170.7, 34.5, 208.5, 4, 50, "B3", "keyhole_u"],
     ["SCC125070220", "SmartSolar MPPT 250/70-Tr", 248.5, 170.7, 34.5, 208.5, 4, 50, "B3", "keyhole_u"],
+    // B3 MC4 Config - same heatsink body as B3 Tr (confirmed from SS-MPPT-250-60-70-MC4-3D.STEP)
+    // All 150/60 through 250/70 MC4 variants share B3 body: 170.7mm, R3/R6, 12mm c-t-c, 35mm from ends
+    ["SCC115060310", "SmartSolar MPPT 150/60-MC4", 248.5, 170.7, 34.5, 208.5, 4, 50, "B3", "keyhole_u"],
+    ["SCC115070310", "SmartSolar MPPT 150/70-MC4", 248.5, 170.7, 34.5, 208.5, 4, 50, "B3", "keyhole_u"],
+    ["SCC125060310", "SmartSolar MPPT 250/60-MC4", 248.5, 170.7, 34.5, 208.5, 4, 50, "B3", "keyhole_u"],
+    ["SCC125060321", "SmartSolar MPPT 250/60-MC4", 248.5, 170.7, 34.5, 208.5, 4, 50, "B3", "keyhole_u"],
+    ["SCC125070310", "SmartSolar MPPT 250/70-MC4", 248.5, 170.7, 34.5, 208.5, 4, 50, "B3", "keyhole_u"],
+    ["SCC125070321", "SmartSolar MPPT 250/70-MC4", 248.5, 170.7, 34.5, 208.5, 4, 50, "B3", "keyhole_u"],
     
     // C1 Config - 2x40mm fans, Circle holes (housing-based)
     ["SCC010010050R", "BlueSolar MPPT 75/10", 112.9, 99.7, 0, 81.9, 2, 40, "C1", "circle"],
