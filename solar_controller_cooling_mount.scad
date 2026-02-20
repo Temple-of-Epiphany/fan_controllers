@@ -35,10 +35,10 @@ component = 1; // [1:Front Fan Mount, 2:Left Rail, 3:Right Rail, 4:Rear Grill]
 fan_size_override = 0; // [0:AutoSelect (use database), 40:40mm fans, 50:50mm fans]
 
 /* [Width Override] */
-// Set to measured physical width (mm) to override database value.
-// Use when physical product differs from STEP file dimensions.
-// 0 = use database value automatically.
-total_width_override = 0; // [0:Use database, 247:247mm, 248:248mm, 249:249mm, 250:250mm]
+// Set to your physically-measured width in mm to override the database value.
+// Use only when your specific unit differs from the STEP file nominal dimension.
+// Leave at 0 to use the database value (default, recommended).
+total_width_override = 0; // mm — enter measured value, or 0 to use database
 
 // ===== CONTROLLER DATABASE =====
 // [model_code, name, total_width, length, heatsink_height, fan_area_width, fan_count, fan_type, flange_config, hole_shape]
