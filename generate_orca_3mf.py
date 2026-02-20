@@ -60,9 +60,13 @@ CONTROLLERS = [
     ("SCC110020170R", "BlueSolar MPPT 100-20 48V",          50),
     ("SCC110020060R", "SmartSolar MPPT 100-20",             50),
     ("SCC110020160R", "SmartSolar MPPT 100-20 48V",         50),
-    # A4 Config - 4x50mm fans
+    # A4 Config - 4x50mm fans (Tr)
     ("SCC115060210",  "SmartSolar MPPT 150-60-Tr",          50),
     ("SCC115070210",  "SmartSolar MPPT 150-70-Tr",          50),
+    # A4 VE.Can Config - same heatsink body as A4 Tr
+    ("SCC115070411",  "SmartSolar MPPT 150-70-Tr VE.Can",   50),
+    ("SCC125070421",  "SmartSolar MPPT 250-70-Tr VE.Can",   50),
+    ("SCC125070441",  "BlueSolar MPPT 250-70-Tr VE.Can",    50),
     # A4_MC4 Config - REMOVED: 150/60-MC4 and 150/70-MC4 moved to B3 MC4 section below
     # B1 Config - 4x50mm fans
     ("SCC115085211",  "SmartSolar MPPT 150-85-Tr",          50),
