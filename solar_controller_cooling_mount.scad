@@ -4,8 +4,8 @@
  * Author: Colin Bitterfield
  * Email: colin@bitterfield.com
  * Date Created: 2025-08-25
- * Date Updated: 2026-02-19
- * Version: 2.6.4
+ * Date Updated: 2026-02-20
+ * Version: 2.6.5
  *
  * STATUS: 44 MODELS - ALL VERIFIED FROM DOCUMENTATION ✅
  *
@@ -60,9 +60,11 @@ controller_db = [
     ["SCC115060210", "SmartSolar MPPT 150/60-Tr", 250, 171, 32.5, 214, 4, 50, "A4", "keyhole_u"],
     ["SCC115070210", "SmartSolar MPPT 150/70-Tr", 250, 171, 32.5, 214, 4, 50, "A4", "keyhole_u"],
 
-    // A4_MC4 Config - 4x50mm fans, MC4 variants wider due to MC4 connectors
-    ["SCC115060310", "SmartSolar MPPT 150/60-MC4", 250, 212.6, 32.5, 214, 4, 50, "A4_MC4", "keyhole_u"],
-    ["SCC115070310", "SmartSolar MPPT 150/70-MC4", 250, 212.6, 32.5, 214, 4, 50, "A4_MC4", "keyhole_u"],
+    // A4_MC4 Config - 4x50mm fans, MC4 variants (same heatsink body as A4, 171mm)
+    // Length confirmed 171mm from STEP file analysis: holes at Z=35 and Z=136 = 171mm heatsink span
+    // 212.6mm was the overall housing length including MC4 connector protrusions, not the heatsink rail
+    ["SCC115060310", "SmartSolar MPPT 150/60-MC4", 250, 171, 32.5, 214, 4, 50, "A4_MC4", "keyhole_u"],
+    ["SCC115070310", "SmartSolar MPPT 150/70-MC4", 250, 171, 32.5, 214, 4, 50, "A4_MC4", "keyhole_u"],
 
     // B1 Config - 4x50mm fans, Keyhole top + Sideways U bottom (USER CONFIRMED: Only these 4 Tr models)
     // B1 Keyhole: 13.75mm from edge, R4/R8, 9mm c-c (confirmed from PDF). U: 13.75mm from edge, 7.5mm dia
@@ -315,7 +317,7 @@ module left_rail(ctrl) {
         // Flange mounting holes - through Z-axis (Z- to Z+) with U cutouts to edges
         if (hole_shape == "sideways_u") {
             // A1 config - Two 8mm holes, each 25mm from nearest edge, centered on Y-axis
-            // Rail length is 142mm, so center is at 71mm
+            // Rail length is 122mm, hole at 25mm and 96.5mm (71.5mm hole-to-hole) - confirmed from STEP
             
             // First hole 25mm from Y=0 edge
             translate([rail_width/2, 25, -1])
@@ -454,7 +456,7 @@ module left_rail(ctrl) {
                 translate([rail_width/2 - 4, controller_length - keyhole_position - 16, -0.5])
                     cube([8, 16, rail_height+1]);
             } else if (flange_config == "B3") {
-                // B3: Keyhole with R3 small, R6 large, 12mm center-to-center (position unverified from PDF)
+                // B3: Keyhole with R3 small, R6 large, 12mm center-to-center (confirmed from STEP file)
                 translate([rail_width/2, controller_length - keyhole_position, -0.5])
                     cylinder(r=3, h=rail_height+1);
                 translate([rail_width/2, controller_length - keyhole_position - 12, -0.5])
@@ -520,7 +522,7 @@ module right_rail(ctrl) {
         // Flange mounting holes - through Z-axis (Z- to Z+) with U cutouts to edges
         if (hole_shape == "sideways_u") {
             // A1 config - Two 8mm holes, each 25mm from nearest edge, centered on Y-axis
-            // Rail length is 142mm, so center is at 71mm
+            // Rail length is 122mm, hole at 25mm and 96.5mm (71.5mm hole-to-hole) - confirmed from STEP
 
             // First hole 25mm from Y=0 edge
             translate([rail_width/2, 25, -1])
@@ -659,7 +661,7 @@ module right_rail(ctrl) {
                 translate([rail_width/2 - 4, controller_length - keyhole_position - 16, -0.5])
                     cube([8, 16, rail_height+1]);
             } else if (flange_config == "B3") {
-                // B3: Keyhole with R3 small, R6 large, 12mm center-to-center (position unverified from PDF)
+                // B3: Keyhole with R3 small, R6 large, 12mm center-to-center (confirmed from STEP file)
                 translate([rail_width/2, controller_length - keyhole_position, -0.5])
                     cylinder(r=3, h=rail_height+1);
                 translate([rail_width/2, controller_length - keyhole_position - 12, -0.5])
