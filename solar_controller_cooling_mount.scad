@@ -5,7 +5,7 @@
  * Email: colin@bitterfield.com
  * Date Created: 2025-08-25
  * Date Updated: 2026-02-20
- * Version: 2.6.7
+ * Version: 2.6.8
  *
  * STATUS: 44 MODELS - ALL VERIFIED FROM DOCUMENTATION ✅
  *
@@ -33,6 +33,12 @@ component = 1; // [1:Front Fan Mount, 2:Left Rail, 3:Right Rail, 4:Rear Grill]
 
 /* [Fan Size Override] */
 fan_size_override = 0; // [0:AutoSelect (use database), 40:40mm fans, 50:50mm fans]
+
+/* [Width Override] */
+// Set to measured physical width (mm) to override database value.
+// Use when physical product differs from STEP file dimensions.
+// 0 = use database value automatically.
+total_width_override = 0; // [0:Use database, 247:247mm, 248:248mm, 249:249mm, 250:250mm]
 
 // ===== CONTROLLER DATABASE =====
 // [model_code, name, total_width, length, heatsink_height, fan_area_width, fan_count, fan_type, flange_config, hole_shape]
@@ -148,7 +154,7 @@ function find_controller(code) =
     len(matches) > 0 ? matches[0] : undef;
 
 function get_name(ctrl) = ctrl[1];
-function get_total_width(ctrl) = ctrl[2];
+function get_total_width(ctrl) = total_width_override > 0 ? total_width_override : ctrl[2];
 function get_length(ctrl) = ctrl[3]; 
 function get_heatsink_height(ctrl) = ctrl[4];
 function get_fan_area_width(ctrl) = ctrl[5];
@@ -222,9 +228,11 @@ if (ctrl == undef) {
                     str(" [Recalculated from ", db_fan_count, "×", db_fan_size, "mm]") : "";
     size_notice = (fan_size_override != 0 && effective_fan_size != structural_fan_sz) ?
                     str(" [Plate/rail sized for ", structural_fan_sz, "mm - fans centered in extra space]") : "";
+    width_notice = total_width_override > 0 ?
+                    str(" [WIDTH OVERRIDE: db=", ctrl[2], "mm → override=", total_width_override, "mm]") : "";
 
     echo(str("Generating component ", component, " for ", get_name(ctrl)));
-    echo(str("Dimensions: ", get_total_width(ctrl), "×", get_length(ctrl), "×", get_heatsink_height(ctrl), "mm"));
+    echo(str("Dimensions: ", get_total_width(ctrl), "×", get_length(ctrl), "×", get_heatsink_height(ctrl), "mm", width_notice));
     echo(str("Rail height: ", struct_rail_h, "mm (structural) | Mount holes: 2"));
     echo(str("Fans: ", effective_fan_count, "×", effective_fan_size, "mm (", fan_mode, ")", recalc_notice, size_notice));
     echo(str("Model: ", model_code, " | Component: ", component_name));
