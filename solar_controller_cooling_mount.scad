@@ -5,7 +5,7 @@
  * Email: colin@bitterfield.com
  * Date Created: 2025-08-25
  * Date Updated: 2026-02-21
- * Version: 2.7.1
+ * Version: 2.7.2
  *
  * STATUS: 44 MODELS - ALL VERIFIED FROM DOCUMENTATION ✅
  *
@@ -39,6 +39,13 @@ fan_size_override = 0; // [0:AutoSelect (use database), 40:40mm fans, 50:50mm fa
 // Use only when your specific unit differs from the STEP file nominal dimension.
 // Leave at 0 to use the database value (default, recommended).
 total_width_override = 0; // mm — enter measured value, or 0 to use database
+
+// ===== GLOBAL RESOLUTION =====
+// $fa: minimum angle per fragment (5° → ~72 sides on large circles)
+// $fs: minimum fragment size (0.5mm → small holes get proportionally more facets)
+// Small cylinders like 5.6mm nut wells get ~35 sides; large fan cutouts get ~65+
+$fa = 5;
+$fs = 0.5;
 
 // ===== CONTROLLER DATABASE =====
 // [model_code, name, total_width, length, heatsink_height, fan_area_width, fan_count, fan_type, flange_config, hole_shape]
