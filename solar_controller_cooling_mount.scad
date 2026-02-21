@@ -5,7 +5,7 @@
  * Email: colin@bitterfield.com
  * Date Created: 2025-08-25
  * Date Updated: 2026-02-21
- * Version: 2.6.9
+ * Version: 2.7.0
  *
  * STATUS: 44 MODELS - ALL VERIFIED FROM DOCUMENTATION ✅
  *
@@ -290,9 +290,8 @@ module front_fan_mount(ctrl) {
                     for (y = [-screw_spacing/2, screw_spacing/2]) {
                         translate([x, y, 0]) {
                             cylinder(d=screw_dia, h=plate_thickness+1);
-                            if (cutout_size == 50)
-                                translate([0, 0, plate_thickness - 4])
-                                    cylinder(d=5.6, h=4.5);
+                            translate([0, 0, plate_thickness - 4])
+                                cylinder(d=5.6, h=4.5);
                         }
                     }
                 }
