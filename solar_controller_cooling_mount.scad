@@ -4,8 +4,8 @@
  * Author: Colin Bitterfield
  * Email: colin@bitterfield.com
  * Date Created: 2025-08-25
- * Date Updated: 2026-02-20
- * Version: 2.6.8
+ * Date Updated: 2026-02-21
+ * Version: 2.6.9
  *
  * STATUS: 44 MODELS - ALL VERIFIED FROM DOCUMENTATION ✅
  *
@@ -228,11 +228,14 @@ if (ctrl == undef) {
                     str(" [Recalculated from ", db_fan_count, "×", db_fan_size, "mm]") : "";
     size_notice = (fan_size_override != 0 && effective_fan_size != structural_fan_sz) ?
                     str(" [Plate/rail sized for ", structural_fan_sz, "mm - fans centered in extra space]") : "";
-    width_notice = total_width_override > 0 ?
-                    str(" [WIDTH OVERRIDE: db=", ctrl[2], "mm → override=", total_width_override, "mm]") : "";
+    width_active = total_width_override > 0;
+    width_note   = width_active ?
+                    str(total_width_override, "mm  *** OVERRIDE ACTIVE — database value: ", ctrl[2], "mm ***") :
+                    str(ctrl[2], "mm");
 
     echo(str("Generating component ", component, " for ", get_name(ctrl)));
-    echo(str("Dimensions: ", get_total_width(ctrl), "×", get_length(ctrl), "×", get_heatsink_height(ctrl), "mm", width_notice));
+    echo(str("Width (heatsink): ", width_note));
+    echo(str("Dimensions: ", get_total_width(ctrl), "×", get_length(ctrl), "×", get_heatsink_height(ctrl), "mm"));
     echo(str("Rail height: ", struct_rail_h, "mm (structural) | Mount holes: 2"));
     echo(str("Fans: ", effective_fan_count, "×", effective_fan_size, "mm (", fan_mode, ")", recalc_notice, size_notice));
     echo(str("Model: ", model_code, " | Component: ", component_name));
