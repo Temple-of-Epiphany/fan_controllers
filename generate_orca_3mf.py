@@ -6,7 +6,7 @@ Author: Colin Bitterfield
 Email: colin@bitterfield.com
 Date Created: 2026-02-17
 Date Updated: 2026-02-21
-Version: 2.4.0
+Version: 2.4.1
 
 Generates one 3MF per controller model x fan size combination:
   - Default fan size (from database)
@@ -30,6 +30,44 @@ File naming: {Model_Name}_{fan_size}mm.3mf
 
 Output directory: output_orca_3mf/
 """
+
+# ===== VENV BOOTSTRAP =====
+# If not already running inside a virtual environment, create a temporary one,
+# install optional dependencies, re-execute this script inside it, then tear
+# the venv down on exit — whether the run succeeds or fails.
+import sys as _sys
+import os as _os
+
+def _in_venv():
+    return _sys.prefix != _sys.base_prefix
+
+if not _in_venv():
+    import subprocess as _sp
+    import shutil as _sh
+    import tempfile as _tf
+    import atexit
+
+    _venv_dir = _tf.mkdtemp(prefix="orca3mf_venv_")
+
+    def _cleanup():
+        _sh.rmtree(_venv_dir, ignore_errors=True)
+
+    atexit.register(_cleanup)
+
+    print(f"[venv] Creating temporary environment in {_venv_dir}")
+    _sp.run([_sys.executable, "-m", "venv", _venv_dir], check=True)
+
+    _venv_python = _os.path.join(_venv_dir, "bin", "python")
+    print("[venv] Installing dependencies (Pillow)...")
+    _sp.run([_venv_python, "-m", "pip", "install", "-q", "Pillow"], check=True)
+
+    print("[venv] Launching script inside virtual environment...")
+    _result = _sp.run([_venv_python] + _sys.argv)
+
+    print(f"[venv] Tearing down {_venv_dir}")
+    _cleanup()
+    _sys.exit(_result.returncode)
+# ===== END VENV BOOTSTRAP =====
 
 import math
 import os
