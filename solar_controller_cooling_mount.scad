@@ -4,8 +4,8 @@
  * Author: Colin Bitterfield
  * Email: colin@bitterfield.com
  * Date Created: 2025-08-25
- * Date Updated: 2026-02-21
- * Version: 2.7.2
+ * Date Updated: 2026-02-24
+ * Version: 2.7.4
  *
  * STATUS: 44 MODELS - ALL VERIFIED FROM DOCUMENTATION ✅
  *
@@ -39,6 +39,14 @@ fan_size_override = 0; // [0:AutoSelect (use database), 40:40mm fans, 50:50mm fa
 // Use only when your specific unit differs from the STEP file nominal dimension.
 // Leave at 0 to use the database value (default, recommended).
 total_width_override = 0; // mm — enter measured value, or 0 to use database
+
+/* [Flange Hole X Override] */
+// Distance from the outer rail edge to the flange hole centre (mm).
+// Use when the physical unit's hole is NOT centred in the rail.
+// Default = get_rail_width(ctrl)/2: 9mm (18mm rail), 10mm (A4 20mm rail), 12mm (B1/B2 24mm rail).
+// Example: set to 11 when measured centre-to-centre span = total_width - 22.
+// Leave at 0 to use the default (get_rail_width(ctrl)/2).
+flange_hole_x_override = 0; // mm — measured offset from outer edge, or 0 for default
 
 // ===== GLOBAL RESOLUTION =====
 // $fa: minimum angle per fragment (5° → ~72 sides on large circles)
@@ -169,6 +177,16 @@ function get_fan_count(ctrl) = ctrl[6];
 function get_fan_type(ctrl) = ctrl[7];
 function get_flange_config(ctrl) = ctrl[8];
 function get_hole_shape(ctrl) = ctrl[9];
+
+// Per-config rail width — matches heatsink flange foot measured from STEP files:
+//   B1/B2/B2_MC4 (150/85+):  24mm  (flange = (290.6 - 242.6) / 2)
+//   A4/A4_MC4 (150/60-70 Tr): 20mm  (flange = (248.5 - 208.5) / 2)
+//   All others:               18mm
+function get_rail_width(ctrl) =
+    let(fc = get_flange_config(ctrl))
+    (fc == "B1" || fc == "B2" || fc == "B2_MC4") ? 24 :
+    (fc == "A4" || fc == "A4_MC4") ? 20 :
+    18;
 
 // Component name lookup
 function get_component_name(comp) =
@@ -307,7 +325,7 @@ module front_fan_mount(ctrl) {
 
         // Rail mounting holes — always two, derived from structural rail height
         rail_hole_dia = m4_hole_dia;
-        edge_offset   = 8;
+        edge_offset   = get_rail_width(ctrl) / 2;  // Must match rail_width/2 for hole alignment
         h1 = mount_hole_1(ctrl);
         h2 = mount_hole_2(ctrl);
 
@@ -333,6 +351,7 @@ module left_rail(ctrl) {
     controller_length = get_length(ctrl);
     heatsink_height = get_heatsink_height(ctrl);
     hole_shape = get_hole_shape(ctrl);
+    rail_width = get_rail_width(ctrl);  // Per-config: shadows global (A4→20mm, B1/B2→24mm, others→18mm)
 
     // Rail height uses structural fan size — never shrinks when overriding to smaller fans
     rail_height = get_structural_rail_height(ctrl);
@@ -443,6 +462,10 @@ module left_rail(ctrl) {
             // Get flange config to determine hole dimensions
             flange_config = get_flange_config(ctrl);
 
+            // X position of flange hole from the outer (left) edge of this rail.
+            // When flange_hole_x_override is set the hole is not centred; default = rail_width/2.
+            flange_x = flange_hole_x_override > 0 ? flange_hole_x_override : rail_width/2;
+
             // Config-specific U-hole dimensions
             u_hole_position = (flange_config == "A4" || flange_config == "A4_MC4") ? 35 :
                              (flange_config == "B3") ? 35 :  // B3 confirmed 35mm from STEP file
@@ -462,50 +485,50 @@ module left_rail(ctrl) {
             if (flange_config == "A4" || flange_config == "A4_MC4") {
                 // A4/A4_MC4: Keyhole with R2.75 small, R6 large, 12mm center-to-center
                 // Small circle at end (screw shank locks here), large circle 12mm toward center (entry)
-                translate([rail_width/2, controller_length - keyhole_position, -0.5])
+                translate([flange_x, controller_length - keyhole_position, -0.5])
                     cylinder(r=2.75, h=rail_height+1);
-                translate([rail_width/2, controller_length - keyhole_position - 12, -0.5])
+                translate([flange_x, controller_length - keyhole_position - 12, -0.5])
                     cylinder(r=6, h=rail_height+1);
-                translate([rail_width/2 - 2.75, controller_length - keyhole_position - 12, -0.5])
+                translate([flange_x - 2.75, controller_length - keyhole_position - 12, -0.5])
                     cube([5.5, 12, rail_height+1]);
             } else if (flange_config == "B1") {
                 // B1: Keyhole with R4 small, R8 large, 9mm center-to-center (confirmed from PDF)
-                translate([rail_width/2, controller_length - keyhole_position, -0.5])
+                translate([flange_x, controller_length - keyhole_position, -0.5])
                     cylinder(r=4, h=rail_height+1);
-                translate([rail_width/2, controller_length - keyhole_position - 9, -0.5])
+                translate([flange_x, controller_length - keyhole_position - 9, -0.5])
                     cylinder(r=8, h=rail_height+1);
-                translate([rail_width/2 - 4, controller_length - keyhole_position - 9, -0.5])
+                translate([flange_x - 4, controller_length - keyhole_position - 9, -0.5])
                     cube([8, 9, rail_height+1]);
             } else if (flange_config == "B2" || flange_config == "B2_MC4") {
                 // B2/B2_MC4: Keyhole with R4 small, R8 large, 16mm center-to-center (confirmed from STEP files)
-                translate([rail_width/2, controller_length - keyhole_position, -0.5])
+                translate([flange_x, controller_length - keyhole_position, -0.5])
                     cylinder(r=4, h=rail_height+1);
-                translate([rail_width/2, controller_length - keyhole_position - 16, -0.5])
+                translate([flange_x, controller_length - keyhole_position - 16, -0.5])
                     cylinder(r=8, h=rail_height+1);
-                translate([rail_width/2 - 4, controller_length - keyhole_position - 16, -0.5])
+                translate([flange_x - 4, controller_length - keyhole_position - 16, -0.5])
                     cube([8, 16, rail_height+1]);
             } else if (flange_config == "B3") {
                 // B3: Keyhole with R3 small, R6 large, 12mm center-to-center (confirmed from STEP file)
-                translate([rail_width/2, controller_length - keyhole_position, -0.5])
+                translate([flange_x, controller_length - keyhole_position, -0.5])
                     cylinder(r=3, h=rail_height+1);
-                translate([rail_width/2, controller_length - keyhole_position - 12, -0.5])
+                translate([flange_x, controller_length - keyhole_position - 12, -0.5])
                     cylinder(r=6, h=rail_height+1);
-                translate([rail_width/2 - 3, controller_length - keyhole_position - 12, -0.5])
+                translate([flange_x - 3, controller_length - keyhole_position - 12, -0.5])
                     cube([6, 12, rail_height+1]);
             } else {
                 // Fallback: Simple through-hole
-                translate([rail_width/2, controller_length - keyhole_position, -0.5])
+                translate([flange_x, controller_length - keyhole_position, -0.5])
                     cylinder(d=8, h=rail_height+1);
             }
 
             // Bottom sideways U (front of controller)
-            translate([rail_width/2, u_hole_position, -1])
+            translate([flange_x, u_hole_position, -1])
                 cylinder(d=u_hole_diameter, h=rail_height+2);
-            // U cutout from hole to X=0 edge
+            // U cutout from hole to X=0 (outer) edge
             translate([0, u_hole_position - u_hole_diameter/2, -1])
-                cube([rail_width/2, u_hole_diameter, rail_height+2]);
+                cube([flange_x, u_hole_diameter, rail_height+2]);
         }
-        
+
         // Holes to connect to front/rear plates — always two, structural rail height guarantees room
         h1 = mount_hole_1(ctrl);
         h2 = mount_hole_2(ctrl);
@@ -538,6 +561,7 @@ module right_rail(ctrl) {
     controller_length = get_length(ctrl);
     heatsink_height = get_heatsink_height(ctrl);
     hole_shape = get_hole_shape(ctrl);
+    rail_width = get_rail_width(ctrl);  // Per-config: shadows global (A4→20mm, B1/B2→24mm, others→18mm)
 
     // Rail height uses structural fan size — never shrinks when overriding to smaller fans
     rail_height = get_structural_rail_height(ctrl);
@@ -648,6 +672,12 @@ module right_rail(ctrl) {
             // Get flange config to determine hole dimensions
             flange_config = get_flange_config(ctrl);
 
+            // X position of flange hole from the inner (left) edge of this rail.
+            // The right rail is mirrored, so the outer edge is at X=rail_width.
+            // When flange_hole_x_override is set: hole is that far from the outer (right) edge,
+            // i.e. at X = rail_width - flange_hole_x_override.  Default = rail_width/2.
+            flange_x = flange_hole_x_override > 0 ? rail_width - flange_hole_x_override : rail_width/2;
+
             // Config-specific U-hole dimensions
             u_hole_position = (flange_config == "A4" || flange_config == "A4_MC4") ? 35 :
                              (flange_config == "B3") ? 35 :  // B3 confirmed 35mm from STEP file
@@ -667,48 +697,48 @@ module right_rail(ctrl) {
             if (flange_config == "A4" || flange_config == "A4_MC4") {
                 // A4/A4_MC4: Keyhole with R2.75 small, R6 large, 12mm center-to-center
                 // Small circle at end (screw shank locks here), large circle 12mm toward center (entry)
-                translate([rail_width/2, controller_length - keyhole_position, -0.5])
+                translate([flange_x, controller_length - keyhole_position, -0.5])
                     cylinder(r=2.75, h=rail_height+1);
-                translate([rail_width/2, controller_length - keyhole_position - 12, -0.5])
+                translate([flange_x, controller_length - keyhole_position - 12, -0.5])
                     cylinder(r=6, h=rail_height+1);
-                translate([rail_width/2 - 2.75, controller_length - keyhole_position - 12, -0.5])
+                translate([flange_x - 2.75, controller_length - keyhole_position - 12, -0.5])
                     cube([5.5, 12, rail_height+1]);
             } else if (flange_config == "B1") {
                 // B1: Keyhole with R4 small, R8 large, 9mm center-to-center (confirmed from PDF)
-                translate([rail_width/2, controller_length - keyhole_position, -0.5])
+                translate([flange_x, controller_length - keyhole_position, -0.5])
                     cylinder(r=4, h=rail_height+1);
-                translate([rail_width/2, controller_length - keyhole_position - 9, -0.5])
+                translate([flange_x, controller_length - keyhole_position - 9, -0.5])
                     cylinder(r=8, h=rail_height+1);
-                translate([rail_width/2 - 4, controller_length - keyhole_position - 9, -0.5])
+                translate([flange_x - 4, controller_length - keyhole_position - 9, -0.5])
                     cube([8, 9, rail_height+1]);
             } else if (flange_config == "B2" || flange_config == "B2_MC4") {
                 // B2/B2_MC4: Keyhole with R4 small, R8 large, 16mm center-to-center (confirmed from STEP files)
-                translate([rail_width/2, controller_length - keyhole_position, -0.5])
+                translate([flange_x, controller_length - keyhole_position, -0.5])
                     cylinder(r=4, h=rail_height+1);
-                translate([rail_width/2, controller_length - keyhole_position - 16, -0.5])
+                translate([flange_x, controller_length - keyhole_position - 16, -0.5])
                     cylinder(r=8, h=rail_height+1);
-                translate([rail_width/2 - 4, controller_length - keyhole_position - 16, -0.5])
+                translate([flange_x - 4, controller_length - keyhole_position - 16, -0.5])
                     cube([8, 16, rail_height+1]);
             } else if (flange_config == "B3") {
                 // B3: Keyhole with R3 small, R6 large, 12mm center-to-center (confirmed from STEP file)
-                translate([rail_width/2, controller_length - keyhole_position, -0.5])
+                translate([flange_x, controller_length - keyhole_position, -0.5])
                     cylinder(r=3, h=rail_height+1);
-                translate([rail_width/2, controller_length - keyhole_position - 12, -0.5])
+                translate([flange_x, controller_length - keyhole_position - 12, -0.5])
                     cylinder(r=6, h=rail_height+1);
-                translate([rail_width/2 - 3, controller_length - keyhole_position - 12, -0.5])
+                translate([flange_x - 3, controller_length - keyhole_position - 12, -0.5])
                     cube([6, 12, rail_height+1]);
             } else {
                 // Fallback: Simple through-hole
-                translate([rail_width/2, controller_length - keyhole_position, -0.5])
+                translate([flange_x, controller_length - keyhole_position, -0.5])
                     cylinder(d=8, h=rail_height+1);
             }
 
             // Bottom sideways U (front of controller) - mirror of left rail
-            translate([rail_width/2, u_hole_position, -1])
+            translate([flange_x, u_hole_position, -1])
                 cylinder(d=u_hole_diameter, h=rail_height+2);
-            // U cutout from hole to X=rail_width edge (mirror of left rail)
-            translate([rail_width/2, u_hole_position - u_hole_diameter/2, -1])
-                cube([rail_width/2, u_hole_diameter, rail_height+2]);
+            // U cutout from hole to X=rail_width (outer) edge
+            translate([flange_x, u_hole_position - u_hole_diameter/2, -1])
+                cube([rail_width - flange_x, u_hole_diameter, rail_height+2]);
         }
 
         // Holes to connect to front/rear plates — always two, structural rail height guarantees room
@@ -804,7 +834,7 @@ module rear_grill(ctrl) {
         
         // Rail mounting holes — always two, structural plate/rail height guarantees room
         rail_hole_dia = m4_hole_dia;
-        edge_offset   = 8;
+        edge_offset   = get_rail_width(ctrl) / 2;  // Must match rail_width/2 for hole alignment
         h1 = mount_hole_1(ctrl);
         h2 = mount_hole_2(ctrl);
 

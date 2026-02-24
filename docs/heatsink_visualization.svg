@@ -1,0 +1,162 @@
+7. <?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#f8f9fa" stroke="none"/>
+  
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#2c3e50">
+    Solar Charge Controller Heatsink Design (---|_) - Top View
+  </text>
+  
+  <!-- Main controller body -->
+  <rect x="250" y="150" width="300" height="200" fill="#34495e" stroke="#2c3e50" stroke-width="2"/>
+  <text x="400" y="255" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="white">
+    Controller Body
+  </text>
+  <text x="400" y="275" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="white">
+    186mm × 171.5mm
+  </text>
+  
+  <!-- Left heatsink - vertical fins (|) -->
+  <rect x="220" y="150" width="30" height="200" fill="#95a5a6" stroke="#7f8c8d" stroke-width="1"/>
+  <text x="235" y="245" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#2c3e50">
+    36-44mm
+  </text>
+  <text x="235" y="260" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#2c3e50">
+    Fins (|)
+  </text>
+  
+  <!-- Left heatsink - horizontal flange (_) - OUTSIDE the rail -->
+  <rect x="197" y="150" width="23" height="200" fill="#bdc3c7" stroke="#95a5a6" stroke-width="1"/>
+  <text x="208" y="245" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#2c3e50" transform="rotate(-90, 208, 245)">
+    23.3mm Flange (_)
+  </text>
+  
+  <!-- Right heatsink - vertical fins (|) -->
+  <rect x="550" y="150" width="30" height="200" fill="#95a5a6" stroke="#7f8c8d" stroke-width="1"/>
+  <text x="565" y="245" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#2c3e50">
+    36-44mm
+  </text>
+  <text x="565" y="260" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#2c3e50">
+    Fins (|)
+  </text>
+  
+  <!-- Right heatsink - horizontal flange (_) - OUTSIDE the rail -->
+  <rect x="580" y="150" width="23" height="200" fill="#bdc3c7" stroke="#95a5a6" stroke-width="1"/>
+  <text x="591" y="245" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#2c3e50" transform="rotate(90, 591, 245)">
+    23.3mm Flange (_)
+  </text>
+  
+  <!-- Mounting holes in flanges - OUTSIDE the rails - 2 holes per side -->
+  <circle cx="208" cy="200" r="3" fill="#e74c3c"/>
+  <circle cx="208" cy="300" r="3" fill="#e74c3c"/>
+  
+  <circle cx="591" cy="200" r="3" fill="#e74c3c"/>
+  <circle cx="591" cy="300" r="3" fill="#e74c3c"/>
+  
+  <!-- Side rails (cooling mount) - INSIDE the flanges -->
+  <rect x="220" y="140" width="30" height="220" fill="#3498db" stroke="#2980b9" stroke-width="2" fill-opacity="0.7"/>
+  <text x="235" y="135" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#2980b9">
+    Left Rail
+  </text>
+  <text x="235" y="375" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#2980b9">
+    ~30mm wide
+  </text>
+  
+  <rect x="550" y="140" width="30" height="220" fill="#3498db" stroke="#2980b9" stroke-width="2" fill-opacity="0.7"/>
+  <text x="565" y="135" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#2980b9">
+    Right Rail
+  </text>
+  <text x="565" y="375" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#2980b9">
+    ~30mm wide
+  </text>
+  
+  <!-- Fan area -->
+  <rect x="250" y="100" width="300" height="50" fill="#e8f5e8" stroke="#27ae60" stroke-width="2" stroke-dasharray="5,5"/>
+  <text x="400" y="130" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#27ae60">
+    Fan Mounting Area
+  </text>
+  
+  <rect x="250" y="350" width="300" height="50" fill="#e8f5e8" stroke="#27ae60" stroke-width="2" stroke-dasharray="5,5"/>
+  <text x="400" y="380" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#27ae60">
+    Rear Grill Area
+  </text>
+  
+  <!-- Dimension arrows and labels -->
+  <!-- Length arrow -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#2c3e50"/>
+    </marker>
+  </defs>
+  
+  <line x1="170" y1="120" x2="630" y2="120" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrowhead)" marker-start="url(#arrowhead)"/>
+  <text x="400" y="115" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#2c3e50">
+    Total Width: ~460mm (Controller + Flanges + Rails)
+  </text>
+  
+  <!-- Height arrow -->
+  <line x1="100" y1="150" x2="100" y2="350" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrowhead)" marker-start="url(#arrowhead)"/>
+  <text x="95" y="250" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#2c3e50" transform="rotate(-90, 95, 250)">
+    Length: 186mm
+  </text>
+  
+  <!-- Shape indicators -->
+  <text x="50" y="450" font-family="monospace" font-size="24" font-weight="bold" fill="#e74c3c">
+    ---|_
+  </text>
+  <text x="50" y="470" font-family="Arial, sans-serif" font-size="12" fill="#2c3e50">
+    Reverse L Shape
+  </text>
+  <text x="50" y="485" font-family="Arial, sans-serif" font-size="10" fill="#7f8c8d">
+    | = Vertical fins (36-44mm)
+  </text>
+  <text x="50" y="500" font-family="Arial, sans-serif" font-size="10" fill="#7f8c8d">
+    _ = Horizontal flange (23.5mm)
+  </text>
+  
+  <!-- Legend -->
+  <text x="600" y="450" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#2c3e50">
+    Legend:
+  </text>
+  
+  <rect x="600" y="460" width="15" height="10" fill="#34495e"/>
+  <text x="625" y="470" font-family="Arial, sans-serif" font-size="12" fill="#2c3e50">
+    Controller Body
+  </text>
+  
+  <rect x="600" y="475" width="15" height="10" fill="#95a5a6"/>
+  <text x="625" y="485" font-family="Arial, sans-serif" font-size="12" fill="#2c3e50">
+    Heatsink Fins (|)
+  </text>
+  
+  <rect x="600" y="490" width="15" height="10" fill="#bdc3c7"/>
+  <text x="625" y="500" font-family="Arial, sans-serif" font-size="12" fill="#2c3e50">
+    Mounting Flange (_)
+  </text>
+  
+  <rect x="600" y="505" width="15" height="10" fill="#3498db" fill-opacity="0.7"/>
+  <text x="625" y="515" font-family="Arial, sans-serif" font-size="12" fill="#2c3e50">
+    Side Rails (Mount)
+  </text>
+  
+  <circle cx="607" cy="525" r="3" fill="#e74c3c"/>
+  <text x="625" y="530" font-family="Arial, sans-serif" font-size="12" fill="#2c3e50">
+    M4 Mounting Holes (2 per side)
+  </text>
+  
+  <!-- Critical measurement callout -->
+  <rect x="450" y="450" width="120" height="80" fill="#fff3cd" stroke="#ffc107" stroke-width="2" rx="5"/>
+  <text x="510" y="470" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#856404">
+    Critical Dimension:
+  </text>
+  <text x="510" y="490" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#e74c3c">
+    Flange Width = 23.5mm
+  </text>
+  <text x="510" y="505" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#856404">
+    Determines rail width
+  </text>
+  <text x="510" y="520" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#856404">
+    requirement (~30mm)
+  </text>
+</svg>

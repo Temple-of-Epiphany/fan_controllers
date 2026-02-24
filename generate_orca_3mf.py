@@ -5,8 +5,8 @@ Generate per-model ElegooSlicer/OrcaSlicer 3MF files for Victron MPPT cooling mo
 Author: Colin Bitterfield
 Email: colin@bitterfield.com
 Date Created: 2026-02-17
-Date Updated: 2026-02-21
-Version: 2.4.1
+Date Updated: 2026-02-23
+Version: 2.4.2
 
 Generates one 3MF per controller model x fan size combination:
   - Default fan size (from database)
@@ -143,11 +143,15 @@ CONTROLLERS = [
     ("SCC110015060R", "SmartSolar MPPT 100-15",             40),
 ]
 
-# Special one-off variants: (model_code, name, fan_size, fan_override, width_override_mm)
-# Use width_override_mm when the physical unit differs from the STEP file nominal dimension.
+# Special one-off variants:
+#   (model_code, name, fan_size, fan_override, width_override_mm, flange_x_override)
+# width_override_mm  — measured outer width when it differs from the STEP nominal.
+# flange_x_override  — distance from outer rail edge to flange hole centre (mm);
+#                      0 = default (rail_width/2 = 9mm centred in 18mm rail).
 # These are generated in addition to the standard CONTROLLERS jobs.
 SPECIAL_VARIANTS = [
-    ("SCC115060210", "SmartSolar MPPT 150-60-Tr", 40, 40, 247),  # 40mm fans, 247mm physical width
+    # 40mm fans, 247mm physical width, holes 11mm from each outer edge (225mm c-t-c)
+    ("SCC115060210", "SmartSolar MPPT 150-60-Tr", 40, 40, 247, 11),
 ]
 
 OVERRIDE_FAN_SIZE = 40
@@ -506,7 +510,7 @@ def find_openscad():
 
 
 def render_stl(openscad_cmd, scad_file, model_code, component_num, fan_override, out_path,
-               width_override=0):
+               width_override=0, flange_x_override=0):
     cmd = [
         openscad_cmd,
         "-o", str(out_path),
@@ -515,6 +519,7 @@ def render_stl(openscad_cmd, scad_file, model_code, component_num, fan_override,
         "-D", f"component={component_num}",
         "-D", f"fan_size_override={fan_override}",
         "-D", f"total_width_override={width_override}",
+        "-D", f"flange_hole_x_override={flange_x_override}",
         str(scad_file),
     ]
     try:
@@ -525,7 +530,7 @@ def render_stl(openscad_cmd, scad_file, model_code, component_num, fan_override,
 
 
 def render_png(openscad_cmd, scad_file, model_code, component_num, fan_override,
-               out_path, width=300, height=300, width_override=0):
+               out_path, width=300, height=300, width_override=0, flange_x_override=0):
     """Render a PNG preview thumbnail via OpenSCAD. Returns True on success."""
     cmd = [
         openscad_cmd,
@@ -539,6 +544,7 @@ def render_png(openscad_cmd, scad_file, model_code, component_num, fan_override,
         "-D", f"component={component_num}",
         "-D", f"fan_size_override={fan_override}",
         "-D", f"total_width_override={width_override}",
+        "-D", f"flange_hole_x_override={flange_x_override}",
         str(scad_file),
     ]
     try:
@@ -816,12 +822,12 @@ def main():
 
     OUTPUT_DIR.mkdir(exist_ok=True)
 
-    # Build job list: (model_code, name, effective_fan_size, fan_override, width_override)
+    # Build job list: (model_code, name, effective_fan_size, fan_override, width_override, flange_x_override)
     jobs = []
     for model_code, name, default_fan in CONTROLLERS:
-        jobs.append((model_code, name, default_fan, 0, 0))
+        jobs.append((model_code, name, default_fan, 0, 0, 0))
         if default_fan != OVERRIDE_FAN_SIZE:
-            jobs.append((model_code, name, OVERRIDE_FAN_SIZE, OVERRIDE_FAN_SIZE, 0))
+            jobs.append((model_code, name, OVERRIDE_FAN_SIZE, OVERRIDE_FAN_SIZE, 0, 0))
     for variant in SPECIAL_VARIANTS:
         jobs.append(variant)
 
@@ -841,16 +847,17 @@ def main():
     with tempfile.TemporaryDirectory(prefix="orca3mf_") as tmp:
         tmp_path = Path(tmp)
 
-        for idx, (model_code, name, fan_size, fan_override, width_override) in enumerate(jobs, 1):
+        for idx, (model_code, name, fan_size, fan_override, width_override, flange_x_override) in enumerate(jobs, 1):
             safe         = sanitize(name)
             width_suffix = f"_w{width_override}mm" if width_override > 0 else ""
             fname        = f"{safe}_{fan_size}mm{width_suffix}.3mf"
             output       = OUTPUT_DIR / fname
 
             print(f"\n[{idx}/{total}] {name}  ({fan_size}mm)")
-            fan_note   = "default" if fan_override == 0 else f"{fan_override}mm override"
-            width_note = f"  Width: {width_override}mm override" if width_override > 0 else ""
-            print(f"  Code: {model_code}  Fan: {fan_note}{width_note}")
+            fan_note    = "default" if fan_override == 0 else f"{fan_override}mm override"
+            width_note  = f"  Width: {width_override}mm override" if width_override > 0 else ""
+            flange_note = f"  Flange X: {flange_x_override}mm override" if flange_x_override > 0 else ""
+            print(f"  Code: {model_code}  Fan: {fan_note}{width_note}{flange_note}")
 
             # Render 4 STLs
             stl_paths = {}
@@ -859,7 +866,7 @@ def main():
                 stl = tmp_path / f"{model_code}_{fan_size}_w{width_override}_comp{comp_id}.stl"
                 print(f"    Rendering {COMP_NAMES[comp_id]}...", end=" ", flush=True)
                 if render_stl(openscad_cmd, scad_path, model_code, comp_id, fan_override, stl,
-                              width_override=width_override):
+                              width_override=width_override, flange_x_override=flange_x_override):
                     stl_paths[comp_id] = stl
                     print("ok")
                 else:
@@ -878,7 +885,7 @@ def main():
                 png = tmp_path / f"{model_code}_{fan_size}_w{width_override}_plate{comp_id}.png"
                 print(f"    Preview {COMP_NAMES[comp_id]}...", end=" ", flush=True)
                 if render_png(openscad_cmd, scad_path, model_code, comp_id, fan_override, png,
-                              width_override=width_override):
+                              width_override=width_override, flange_x_override=flange_x_override):
                     png_paths[comp_id] = png
                     print("ok")
                 else:
