@@ -5,8 +5,8 @@ Generate per-model ElegooSlicer/OrcaSlicer 3MF files for Victron MPPT cooling mo
 Author: Colin Bitterfield
 Email: colin@bitterfield.com
 Date Created: 2026-02-17
-Date Updated: 2026-02-24
-Version: 2.4.3
+Date Updated: 2026-02-23
+Version: 2.4.2
 
 Generates one 3MF per controller model x fan size combination:
   - Default fan size (from database)
@@ -159,9 +159,9 @@ MATERIAL          = "PETG"
 INFILL_PCT        = 20
 SCAD_FILE         = "solar_controller_cooling_mount.scad"
 OUTPUT_DIR        = Path("output_orca_3mf")
-BED_SIZE          = 256.0    # Build plate width/depth (mm) — Elegoo CC1 build volume
+BED_SIZE          = 256.0    # Build plate width/depth (mm)
 MAX_STRAIGHT      = 245.0    # Parts larger than this are rotated 45°
-PLATE_STRIDE      = BED_SIZE          # Virtual canvas offset between plates (must equal BED_SIZE)
+PLATE_STRIDE      = BED_SIZE * 1.2  # Virtual canvas offset between plates (~307.2mm)
 
 # Component numbers (must match SCAD component variable)
 COMP_FRONT = 1
