@@ -6,7 +6,7 @@ Author: Colin Bitterfield
 Email: colin@bitterfield.com
 Date Created: 2026-02-17
 Date Updated: 2026-02-24
-Version: 2.4.4
+Version: 2.4.5
 
 Generates one 3MF per controller model x fan size combination:
   - Default fan size (from database)
@@ -142,6 +142,9 @@ CONTROLLERS = [
     ("SCC010015200R", "SmartSolar MPPT 100-15-C2",          40),
     ("SCC110015060R", "SmartSolar MPPT 100-15",             40),
 ]
+
+# Index lookup: model_code → position in CONTROLLERS (== model_index in SCAD)
+CODE_TO_INDEX = {code: idx for idx, (code, _name, _fan) in enumerate(CONTROLLERS)}
 
 # Special one-off variants:
 #   (model_code, name, fan_size, fan_override, width_override_mm, flange_x_override)
@@ -515,7 +518,7 @@ def render_stl(openscad_cmd, scad_file, model_code, component_num, fan_override,
         openscad_cmd,
         "-o", str(out_path),
         "--export-format", "binstl",
-        "-D", f'model_code="{model_code}"',
+        "-D", f"model_index={CODE_TO_INDEX[model_code]}",
         "-D", f"component={component_num}",
         "-D", f"fan_size_override={fan_override}",
         "-D", f"total_width_override={width_override}",
@@ -540,7 +543,7 @@ def render_png(openscad_cmd, scad_file, model_code, component_num, fan_override,
         "--autocenter",
         "--viewall",
         "--camera=0,0,0,45,0,25,500",
-        "-D", f'model_code="{model_code}"',
+        "-D", f"model_index={CODE_TO_INDEX[model_code]}",
         "-D", f"component={component_num}",
         "-D", f"fan_size_override={fan_override}",
         "-D", f"total_width_override={width_override}",

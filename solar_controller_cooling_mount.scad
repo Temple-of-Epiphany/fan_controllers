@@ -5,7 +5,7 @@
  * Email: colin@bitterfield.com
  * Date Created: 2025-08-25
  * Date Updated: 2026-02-24
- * Version: 2.7.4
+ * Version: 2.7.5
  *
  * STATUS: 44 MODELS - ALL VERIFIED FROM DOCUMENTATION ✅
  *
@@ -19,14 +19,14 @@
  * Components: Front fan mount, left rail, right rail, rear hexagonal grill
  *
  * Usage:
- * 1. Set model_code variable to desired controller (e.g. "SCC020030200" or "ORI121236120")
+ * 1. Set model_index variable to desired controller (0-47) via Customizer dropdown
  * 2. Set component variable to desired part (1-4)
  * 3. Render and export STL
  */
 
 // ===== USER CONFIGURATION =====
 /* [Model Selection] */
-model_code = "SCC020030200"; // [SCC020030200:BS 100/30, SCC110030210:SS 100/30, SCC020050200:BS 100/50, SCC020035000:BS 150/35, SCC115045222:BS 150/45, SCC110050210:SS 100/50, SCC115035210:SS 150/35, SCC115045212:SS 150/45, ORI121236120:Orion-Tr 12/12-30A, ORI122436120:Orion-Tr 12/24-15A, ORI241236120:Orion-Tr 24/12-30A, SCC115060210:SS 150/60-Tr, SCC115070210:SS 150/70-Tr, SCC115070411:SS 150/70-Tr VC, SCC125070421:SS 250/70-Tr VC, SCC125070441:BS 250/70-Tr VC, SCC110020070R:BS 100/20, SCC110020170R:BS 100/20 48V, SCC110020060R:SS 100/20, SCC110020160R:SS 100/20 48V, SCC115110211:SS 150/100-Tr, SCC115085211:SS 150/85-Tr, SCC125110210:SS 250/100-Tr, SCC125085210:SS 250/85-Tr, SCC115085411:SS 150/85-Tr VC, SCC115110410:SS 150/100-Tr VC, SCC115110420:BS 150/100-Tr VC, SCC125085411:SS 250/85-Tr VC, SCC125110411:SS 250/100-Tr VC, SCC125110441:BS 250/100-Tr VC, SCC115085511:SS 150/85-MC4 VC, SCC115110511:SS 150/100-MC4 VC, SCC125085511:SS 250/85-MC4 VC, SCC125110512:SS 250/100-MC4 VC, SCC125060221:SS 250/60-Tr, SCC125070220:SS 250/70-Tr, SCC115060310:SS 150/60-MC4, SCC115070310:SS 150/70-MC4, SCC125060310:SS 250/60-MC4, SCC125060321:SS 250/60-MC4b, SCC125070310:SS 250/70-MC4, SCC125070321:SS 250/70-MC4b, SCC010010050R:BS 75/10, SCC010015050R:BS 75/15, SCC075010060R:SS 75/10, SCC075015060R:SS 75/15, SCC010015200R:SS 100/15 C2, SCC110015060R:SS 100/15]
+model_index = 0; // [0:BlueSolar 100/30, 1:SmartSolar 100/30, 2:BlueSolar 100/50, 3:BlueSolar 150/35, 4:BlueSolar 150/45, 5:SmartSolar 100/50, 6:SmartSolar 150/35, 7:SmartSolar 150/45, 8:Orion-Tr Smart 12/12-30A, 9:Orion-Tr Smart 12/24-15A, 10:Orion-Tr Smart 24/12-30A, 11:BlueSolar 100/20, 12:BlueSolar 100/20 48V, 13:SmartSolar 100/20, 14:SmartSolar 100/20 48V, 15:SmartSolar 150/60-Tr, 16:SmartSolar 150/70-Tr, 17:SmartSolar 150/70-Tr VE.Can, 18:SmartSolar 250/70-Tr VE.Can, 19:BlueSolar 250/70-Tr VE.Can, 20:SmartSolar 150/85-Tr, 21:SmartSolar 150/100-Tr, 22:SmartSolar 250/85-Tr, 23:SmartSolar 250/100-Tr, 24:SmartSolar 150/85-Tr VE.Can, 25:SmartSolar 150/100-Tr VE.Can, 26:BlueSolar 150/100-Tr VE.Can, 27:SmartSolar 250/85-Tr VE.Can, 28:SmartSolar 250/100-Tr VE.Can, 29:BlueSolar 250/100-Tr VE.Can, 30:SmartSolar 150/85-MC4 VE.Can, 31:SmartSolar 150/100-MC4 VE.Can, 32:SmartSolar 250/85-MC4 VE.Can, 33:SmartSolar 250/100-MC4 VE.Can, 34:SmartSolar 250/60-Tr, 35:SmartSolar 250/70-Tr, 36:SmartSolar 150/60-MC4, 37:SmartSolar 150/70-MC4, 38:SmartSolar 250/60-MC4, 39:SmartSolar 250/60-MC4b, 40:SmartSolar 250/70-MC4, 41:SmartSolar 250/70-MC4b, 42:BlueSolar 75/10, 43:BlueSolar 75/15, 44:SmartSolar 75/10, 45:SmartSolar 75/15, 46:SmartSolar 100/15 C2, 47:SmartSolar 100/15]
 
 /* [Component Selection] */
 component = 1; // [1:Front Fan Mount, 2:Left Rail, 3:Right Rail, 4:Rear Grill]
@@ -47,6 +47,21 @@ total_width_override = 0; // mm — enter measured value, or 0 to use database
 // Example: set to 11 when measured centre-to-centre span = total_width - 22.
 // Leave at 0 to use the default (get_rail_width(ctrl)/2).
 flange_hole_x_override = 0; // mm — measured offset from outer edge, or 0 for default
+
+/* [Hidden] */
+// Lookup table: index → SCC/ORI model code (must match controller_db order exactly)
+_MODEL_CODES = [
+    "SCC020030200", "SCC110030210", "SCC020050200", "SCC020035000", "SCC115045222",
+    "SCC110050210", "SCC115035210", "SCC115045212", "ORI121236120", "ORI122436120",
+    "ORI241236120", "SCC110020070R", "SCC110020170R", "SCC110020060R", "SCC110020160R",
+    "SCC115060210", "SCC115070210", "SCC115070411", "SCC125070421", "SCC125070441",
+    "SCC115085211", "SCC115110211", "SCC125085210", "SCC125110210", "SCC115085411",
+    "SCC115110410", "SCC115110420", "SCC125085411", "SCC125110411", "SCC125110441",
+    "SCC115085511", "SCC115110511", "SCC125085511", "SCC125110512", "SCC125060221",
+    "SCC125070220", "SCC115060310", "SCC115070310", "SCC125060310", "SCC125060321",
+    "SCC125070310", "SCC125070321", "SCC010010050R", "SCC010015050R", "SCC075010060R",
+    "SCC075015060R", "SCC010015200R", "SCC110015060R"];
+model_code = _MODEL_CODES[model_index];
 
 // ===== GLOBAL RESOLUTION =====
 // $fa: minimum angle per fragment (5° → ~72 sides on large circles)
@@ -893,10 +908,12 @@ module keyhole_pattern(controller_length, rail_length) {
 
 // ===== EXAMPLE USAGE =====
 /*
-To generate all 4 components for MPPT 100/30:
+To generate all 4 components for SmartSolar 100/30 (index 1):
 
-1. Set: model_code = "SCC020030200"; component = 1; // Front fan mount
-2. Set: model_code = "SCC020030200"; component = 2; // Left rail  
-3. Set: model_code = "SCC020030200"; component = 3; // Right rail
-4. Set: model_code = "SCC020030200"; component = 4; // Rear grill
+1. Set: model_index = 1; component = 1; // Front fan mount
+2. Set: model_index = 1; component = 2; // Left rail
+3. Set: model_index = 1; component = 3; // Right rail
+4. Set: model_index = 1; component = 4; // Rear grill
+
+model_index reference: 0=BlueSolar 100/30, 1=SmartSolar 100/30, ... see Customizer dropdown for full list
 */
