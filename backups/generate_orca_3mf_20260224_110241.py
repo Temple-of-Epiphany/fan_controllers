@@ -6,7 +6,7 @@ Author: Colin Bitterfield
 Email: colin@bitterfield.com
 Date Created: 2026-02-17
 Date Updated: 2026-02-24
-Version: 2.4.4
+Version: 2.4.3
 
 Generates one 3MF per controller model x fan size combination:
   - Default fan size (from database)
@@ -727,8 +727,8 @@ def create_3mf(stl_paths, output_3mf, model_name, fan_size, png_paths=None):
             'wrapper_id':    wrapper_id,
             'part_obj_id':   part_id,
             'name':          COMP_NAMES[comp_id],
-            'source_offset_x': 0,            # mesh already centered at XY origin
-            'source_offset_y': 0,            # mesh already centered at XY origin
+            'source_offset_x': (b[0] + b[3]) / 2.0,
+            'source_offset_y': (b[1] + b[4]) / 2.0,
             'source_offset_z': heights[comp_id] / 2.0,
         })
 
